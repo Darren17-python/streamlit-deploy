@@ -100,4 +100,44 @@ def preprocess_text(text):
         return ""
 
 def predict_text(input_text, model, vectorizer, train_texts):
-    """Prediksi objektivitas teks input."
+    """Prediksi objektivitas teks input."""
+    if not input_text or len(input_text.split()) < 2:
+        return None
+    processed_input = preprocess_text(input_text)
+    if not processed_input:
+        return None
+    try:
+        tfidf_input = vectorizer.transform([processed_input])
+        tfidf_train = vectorizer.transform(train_texts)
+        similarity_scores = cosine_similarity(tfidf_input, tfidf_train)
+        max_similarity = similarity_scores.max()
+        if max_similarity < 0.2:
+            return None
+        similar_text_index = similarity_scores.argmax()
+        prediction = model.predict([tfidf_train[similar_text_index].toarray().flatten()])
+        return 'Objektif' if prediction[0] == 'Objektif' else 'Subjektif'
+    except Exception as e:
+        st.error(f"Error during prediction: {e}")
+        return None
+# Streamlit UI
+st.title("Analisis Objektivitas Berita Bencana Alam")
+st.markdown("Masukkan berita untuk mendeteksi apakah bersifat objektif atau subjektif.")
+
+# Text input area untuk pengguna
+input_text = st.text_area("Masukkan berita di sini:", height=200)
+
+if st.button("Deteksi"):
+    if input_text.strip():
+        model_key = "liputan6_gempa"  # Sesuaikan dengan model yang ingin digunakan
+        if model_key in models and model_key in vectorizers:
+            # Lakukan prediksi berdasarkan model dan vectorizer yang dipilih
+            prediction = predict_text(input_text, models[model_key], vectorizers[model_key], train_texts)
+            if prediction:
+                st.success(f"Hasil Deteksi: {prediction}")
+            else:
+                st.warning("Tidak dapat mendeteksi objektivitas teks.")
+        else:
+            st.error("Model atau vectorizer tidak ditemukan.")
+    else:
+        st.error("Silakan masukkan teks sebelum mendeteksi!")
+
