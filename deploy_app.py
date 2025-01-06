@@ -10,51 +10,40 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import nltk
 
+# Pastikan resource nltk sudah terunduh
 try:
-    nltk.download('punkt')  # Hanya mengunduh 'punkt', bukan 'punkt_tab'
-except LookupError:
-    st.error("Resource 'punkt' tidak tersedia. Silakan coba lagi.")
-    
-# Load stopwords and stemmer
-try:
-    stop_words = set(stopwords.words('indonesian'))
-except LookupError:
-    stop_words = set()
+    nltk.download('punkt')  # Mengunduh 'punkt' tokenizer
+    nltk.download('stopwords')  # Mengunduh stopwords
+except LookupError as e:
+    st.error(f"Error downloading NLTK resources: {e}")
+
+# Load stopwords dan stemmer
+stop_words = set(stopwords.words('indonesian'))
 stemmer = PorterStemmer()
 
-# Load models and resources
+# Coba memuat model dan vectorizer
+models = {}
+vectorizers = {}
 try:
-    models = {
-    "liputan6_gempa": joblib.load('liputan6_gempa.pkl'),
-    "liputan6_banjir": joblib.load('liputan6_banjir.pkl'),
-    "liputan6_tsunami": joblib.load('liputan6_tsunami.pkl'),
-    "detik_gempa": joblib.load('detik_gempa.pkl'),
-    "detik_banjir": joblib.load('detik_banjir.pkl'),
-    "detik_tsunami": joblib.load('detik_tsunami.pkl'),
-    "tribunnews_gempa": joblib.load('tribunnews_gempa.pkl'),
-    "tribunnews_banjir": joblib.load('tribunnews_banjir.pkl'),
-    "tribunnews_tsunami": joblib.load('tribunnews_tsunami.pkl'),
-    "okezonenews_gempa": joblib.load('okezonenews_gempa.pkl'),
-    "okezonenews_banjir": joblib.load('okezonenews_banjir.pkl'),
-    "okezonenews_tsunami": joblib.load('okezonenews_tsunami.pkl'),
-    "BMKG_gempa": joblib.load('BMKG_gempa.pkl')
-    }
-
-    vectorizers = {
-        "liputan6_gempa": joblib.load('liputan6_gempa_vectorizer.pkl'),
-        "liputan6_banjir": joblib.load('liputan6_banjir_vectorizer.pkl'),
-        "liputan6_tsunami": joblib.load('liputan6_tsunami_vectorizer.pkl'),
-        "detik_gempa": joblib.load('detik_gempa_vectorizer.pkl'),
-        "detik_banjir": joblib.load('detik_banjir_vectorizer.pkl'),
-        "detik_tsunami": joblib.load('detik_tsunami_vectorizer.pkl'),
-        "tribunnews_gempa": joblib.load('tribunnews_gempa_vectorizer.pkl'),
-        "tribunnews_banjir": joblib.load('tribunnews_banjir_vectorizer.pkl'),
-        "tribunnews_tsunami": joblib.load('tribunnews_tsunami_vectorizer.pkl'),
-        "okezonenews_gempa": joblib.load('okezonenews_gempa_vectorizer.pkl'),
-        "okezonenews_banjir": joblib.load('okezonenews_banjir_vectorizer.pkl'),
-        "okezonenews_tsunami": joblib.load('okezonenews_tsunami_vectorizer.pkl'),
-        "BMKG_gempa": joblib.load('BMKG_gempa_vectorizer.pkl')
-    }
+    model_files = [
+        'liputan6_gempa.pkl', 'liputan6_banjir.pkl', 'liputan6_tsunami.pkl',
+        'detik_gempa.pkl', 'detik_banjir.pkl', 'detik_tsunami.pkl',
+        'tribunnews_gempa.pkl', 'tribunnews_banjir.pkl', 'tribunnews_tsunami.pkl',
+        'okezonenews_gempa.pkl', 'okezonenews_banjir.pkl', 'okezonenews_tsunami.pkl',
+        'BMKG_gempa.pkl'
+    ]
+    vectorizer_files = [
+        'liputan6_gempa_vectorizer.pkl', 'liputan6_banjir_vectorizer.pkl', 'liputan6_tsunami_vectorizer.pkl',
+        'detik_gempa_vectorizer.pkl', 'detik_banjir_vectorizer.pkl', 'detik_tsunami_vectorizer.pkl',
+        'tribunnews_gempa_vectorizer.pkl', 'tribunnews_banjir_vectorizer.pkl', 'tribunnews_tsunami_vectorizer.pkl',
+        'okezonenews_gempa_vectorizer.pkl', 'okezonenews_banjir_vectorizer.pkl', 'okezonenews_tsunami_vectorizer.pkl',
+        'BMKG_gempa_vectorizer.pkl'
+    ]
+    
+    for model_file, vectorizer_file in zip(model_files, vectorizer_files):
+        model_key = model_file.split('.')[0]
+        models[model_key] = joblib.load(model_file)
+        vectorizers[model_key] = joblib.load(vectorizer_file)
 except Exception as e:
     st.error(f"Error loading models or vectorizers: {e}")
 
@@ -106,6 +95,7 @@ def predict_text(input_text, model, vectorizer, train_texts):
     except Exception as e:
         st.error(f"Error during prediction: {e}")
         return None
+
 # Streamlit UI
 st.title("Analisis Objektivitas Berita Bencana Alam")
 st.markdown("Masukkan berita untuk mendeteksi apakah bersifat objektif atau subjektif.")
@@ -127,4 +117,3 @@ if st.button("Deteksi"):
             st.error("Model atau vectorizer tidak ditemukan.")
     else:
         st.error("Silakan masukkan teks sebelum mendeteksi!")
-
