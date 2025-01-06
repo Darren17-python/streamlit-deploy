@@ -10,24 +10,11 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import nltk
 
-# Menghapus folder yang tidak valid (punkt_tab) jika ada
 try:
-    punkt_tab_dir = '/home/appuser/nltk_data/tokenizers/punkt_tab'
-    if os.path.exists(punkt_tab_dir):
-        shutil.rmtree(punkt_tab_dir)  # Menghapus folder dan isinya
-        st.info(f"Folder {punkt_tab_dir} berhasil dihapus.")
-    else:
-        st.info(f"Folder {punkt_tab_dir} tidak ditemukan.")
-except Exception as e:
-    st.error(f"Error during folder deletion: {e}")
-
-# Pastikan resource NLTK tersedia
-try:
-    nltk.download('punkt')
-    nltk.download('stopwords')
-except Exception as e:
-    st.error(f"Error downloading NLTK resources: {e}")
-
+    nltk.download('punkt')  # Hanya mengunduh 'punkt', bukan 'punkt_tab'
+except LookupError:
+    st.error("Resource 'punkt' tidak tersedia. Silakan coba lagi.")
+    
 # Load stopwords and stemmer
 try:
     stop_words = set(stopwords.words('indonesian'))
