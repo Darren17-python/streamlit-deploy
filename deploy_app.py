@@ -1,3 +1,5 @@
+import os
+import shutil
 import streamlit as st
 import pandas as pd
 import joblib
@@ -7,7 +9,17 @@ from nltk.stem import PorterStemmer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import nltk
-import os
+
+# Menghapus folder yang tidak valid (punkt_tab)
+try:
+    file_path = '/home/appuser/nltk_data/tokenizers/punkt_tab/english'
+    if os.path.isfile(file_path):
+        os.remove(file_path)  # Menghapus file
+        st.info(f"File {file_path} berhasil dihapus.")
+    else:
+        st.info(f"File {file_path} tidak ditemukan.")
+except Exception as e:
+    st.error(f"Error during file deletion: {e}")
 
 # Pastikan resource NLTK tersedia
 try:
