@@ -9,16 +9,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 import nltk
 import os
 
-nltk.data.path.append('/path/to/your/nltk_data')
-
-# Pastikan resource NLTK tersedia
-try:
-    nltk.download('punkt')
-    nltk.download('stopwords')
-except Exception as e:
-    st.error(f"Error downloading NLTK resources: {e}")
-
-# Load stopwords and stemmer
 try:
     stop_words = set(stopwords.words('indonesian'))
 except LookupError:
