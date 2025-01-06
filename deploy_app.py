@@ -12,7 +12,8 @@ import nltk
 
 # Pastikan resource nltk sudah terunduh
 try:
-    nltk.download('punkt')  # Mengunduh 'punkt' tokenizer
+    nltk.download('punkt')  # Mengunduh 'punkt' tokenizer'
+    nltk.download('punkt_tab')
     nltk.download('stopwords')  # Mengunduh stopwords
 except LookupError as e:
     st.error(f"Error downloading NLTK resources: {e}")
